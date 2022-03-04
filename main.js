@@ -1,4 +1,5 @@
-const form = document.getElementById("form");
+const form = document.getElementById('form');
+const main = document.querySelector('.main')
 class Movies {
   constructor() {
     this.imgPath = "https://image.tmdb.org/t/p/w1280";
@@ -29,8 +30,10 @@ class Movies {
     for (const item of data.results) {
       this.data.push(item);
     }
-    console.log("this.data", this.data);
+   
+    console.log(this.data)
   }
+ 
 
   async searchMovie() {
     if (this.searchReq && this.searchReq.value !== "") {
@@ -42,9 +45,59 @@ class Movies {
   }
   render() {
     this.getPopular();
+
+    if(!this.data) {
+      main.innerHTML = '<p> Wait Data...</p>'
+    } else {
+     setTimeout(() => {
+
+
+      this.data.forEach(item => {
+        const {poster_path, original_title, vote_average, overview, id, title} = item
+
+        const movieEl = document.createElement('div')
+
+        movieEl.classList.toggle('movie')
+
+       movieEl.innerHTML = 
+        `
+          <div class="movie" data-id = "${id}">
+              <img src="${this.imgPath + poster_path}" alt="photo">
+              
+              <div class="movie-info">
+                  <h3>${original_title}</h3>
+                  <span class="${voteRate(vote_average)}"> ${vote_average} </span>
+              </div>
+              <div class="overview">
+                  <h3>${title}</h3>
+                  ${overview}
+              </div>
+          </div>
+        `
+
+     main.appendChild(movieEl)
+      })
+ 
+
+     }, 1000) 
+    }
+
   }
 }
+
+function voteRate (vote) {
+  if(vote >= 8) {
+    return 'green'
+  } else if( vote >= 5) {
+    return 'orange'
+  } else {
+    return 'red'
+  }
+}
+
 const mov = new Movies();
+mov.render()
+
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
