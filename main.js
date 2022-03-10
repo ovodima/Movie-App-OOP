@@ -1,5 +1,6 @@
 const form = document.getElementById("form");
 const main = document.querySelector(".main");
+const searchReq = document.querySelector(".search");
 class Movies {
   constructor() {
     this.imgPath = "https://image.tmdb.org/t/p/w1280";
@@ -7,10 +8,9 @@ class Movies {
       "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=060f347dcc7582a34aa7ccbecd45da16&page=1";
     this.search =
       "https://api.themoviedb.org/3/search/movie?api_key=060f347dcc7582a34aa7ccbecd45da16&query=";
-    this.searchReq = document.querySelector(".search");
   }
 
-   async getMovies(url) {
+  async getMovies(url) {
     try {
       let request = await fetch(url);
 
@@ -38,19 +38,12 @@ class Movies {
   async searchMovie() {
     let result;
     try {
-      if (this.searchReq && this.searchReq.value !== "") {
-        result = await this.getMovies(`${this.search + this.searchReq.value}`);
-      } else {
-        return
-      }
+      result = await this.getMovies(`${this.search + searchReq.value}`);
     } catch (error) {
       console.log(new Error(error));
     }
-    return result
+    return result;
   }
-
-
-
 
   voteRate(vote) {
     if (vote >= 8) {
@@ -63,25 +56,25 @@ class Movies {
   }
 
   showMovieInPage(movie) {
-      if (!movie) {
-          main.innerHTML = '<p class="error"> Wait Data...</p>';
-        } else {
-          movie.forEach((item) => {
-            const {
-              poster_path,
-              original_title,
-              vote_average,
-              overview,
-              id,
-              title,
-            } = item;
+    if (!movie) {
+      main.innerHTML = '<p class="error"> Wait Data...</p>';
+    } else {
+      movie.forEach((item) => {
+        const {
+          poster_path,
+          original_title,
+          vote_average,
+          overview,
+          id,
+          title,
+        } = item;
 
-            const movieEl = document.createElement("div");
-            movieEl.setAttribute('data-id', `${id}`)
+        const movieEl = document.createElement("div");
+        movieEl.setAttribute("data-id", `${id}`);
 
-            movieEl.classList.toggle("movie");
+        movieEl.classList.toggle("movie");
 
-            movieEl.innerHTML = `
+        movieEl.innerHTML = `
               
                   <img src="${this.imgPath + poster_path}" alt="photo">
                   
@@ -97,34 +90,29 @@ class Movies {
                   </div>
               
             `;
-            main.appendChild(movieEl);
-          });
-        }
-     
-  }
-
-  renderSearch() {
-        this.searchMovie()
-          .then(data => data.results)
-            .then(result => this.showMovieInPage(result))
+        main.appendChild(movieEl);
+      });
+    }
   }
 
   render() {
-    
-
-
-    this.getPopular()
-      .then(data => data.results)
-        .then(movies => this.showMovieInPage(movies))
+    if (searchReq && searchReq.value !== "") {
+      this.searchMovie()
+        .then((data) => data.results)
+        .then((result) => this.showMovieInPage(result));
+    } else {
+      this.getPopular()
+        .then((data) => data.results)
+        .then((movies) => this.showMovieInPage(movies));
+    }
   }
 }
 
-
-
 const moviePage = new Movies();
-moviePage.render()
+moviePage.render();
 
 form.addEventListener("submit", (e) => {
-  e.preventDefault()
-  moviePage.renderSearch()
+  e.preventDefault();
+
+  moviePage.render();
 });
