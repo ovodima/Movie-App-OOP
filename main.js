@@ -1,6 +1,6 @@
 const form = document.getElementById("form");
 const main = document.querySelector(".main");
-const searchReq = document.querySelector(".search");
+const searchReq = document.getElementById("search");
 class Movies {
   constructor() {
     this.imgPath = "https://image.tmdb.org/t/p/w1280";
@@ -11,38 +11,18 @@ class Movies {
   }
 
   async getMovies(url) {
+    let result 
     try {
-      let request = await fetch(url);
+      result = await fetch(url);
 
-      if (request.ok) {
-        return request.json();
-      } else {
-        console.error(request.error);
+      if (result.ok) {
+        return result.json();
       }
     } catch (error) {
       console.error(error);
     }
-  }
 
-  async getPopular() {
-    let result;
-    try {
-      result = await this.getMovies(this.popularMovies);
-    } catch (error) {
-      console.log(new Error(error));
-    }
-
-    return result;
-  }
-
-  async searchMovie() {
-    let result;
-    try {
-      result = await this.getMovies(`${this.search + searchReq.value}`);
-    } catch (error) {
-      console.log(new Error(error));
-    }
-    return result;
+    return result
   }
 
   voteRate(vote) {
@@ -56,6 +36,8 @@ class Movies {
   }
 
   showMovieInPage(movie) {
+    main.innerHTML = ''
+
     if (!movie) {
       main.innerHTML = '<p class="error"> Wait Data...</p>';
     } else {
@@ -96,15 +78,17 @@ class Movies {
   }
 
   render() {
-    if (searchReq && searchReq.value !== "") {
-      this.searchMovie()
-        .then((data) => data.results)
-        .then((result) => this.showMovieInPage(result));
+
+    if(searchReq && searchReq.value !== '') {
+      this.getMovies(this.search + searchReq.value)
+      .then(data => data.results)
+        .then(resSearch => this.showMovieInPage(resSearch))
     } else {
-      this.getPopular()
-        .then((data) => data.results)
-        .then((movies) => this.showMovieInPage(movies));
+      this.getMovies(this.popularMovies)
+      .then(data => data.results)
+        .then(popular => this.showMovieInPage(popular))
     }
+
   }
 }
 
